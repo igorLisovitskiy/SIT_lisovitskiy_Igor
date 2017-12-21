@@ -1,10 +1,8 @@
 package com.lisovitskiy.hw5;
 
-import java.util.Arrays;
-
-class Book {
+public class Book {
 	private int id;
-	private static int NumberOfBooks = 0;
+	private static int numberOfBooks = 0;
 	private String name;
 	String[] autors;
 	private String publishingHouse;
@@ -16,20 +14,17 @@ class Book {
 	enum Binding {
 		WIRE("Plastic coils"), SEWN("Running stitch"), COPTIC("Through the fold"), JAPANESE("On the inside");
 		private String bindingName;
-
 		private Binding(String bindingName) {
 			this.bindingName = bindingName;
 		}
-
 		public String getBinding() {
 			return bindingName;
 		}
-
 	}
 
 	public Book(String name, String[] autors, String publishingHouse, int publishingYear, int numberOfPages,
 			double price, Binding binding) {
-		this.id = ++NumberOfBooks;
+		this.id = ++numberOfBooks;
 		this.name = name;
 		this.autors = autors;
 		this.publishingHouse = publishingHouse;
@@ -65,11 +60,8 @@ class Book {
 
 	public String getAutors() {
 		String[] authors = this.autors;
-		StringBuilder builder = new StringBuilder();
-		for (String author : authors) {
-			builder.append(author + " ");
-		}
-		return builder.toString().trim();
+		String authorsList = String.join(", ", authors);
+		return authorsList;
 	}
 
 	public void setAutors(String[] autors) {
@@ -135,8 +127,8 @@ class Book {
 		l.addBook(b5);
 		l.addBook(b6);
 		// l.showAllBooks(););
-		l.getBooksByPublishingHouse("Fielding Corp.");
-		l.getBooksOlderThan(1720);
+		//l.getBooksByPublishingHouse("Fielding Corp.");
+		//l.getBooksOlderThan(1720);
 		l.getBooksByAuthor("Dorothy Kilner");
 
 	}

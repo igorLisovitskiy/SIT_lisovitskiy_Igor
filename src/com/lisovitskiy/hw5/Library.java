@@ -11,29 +11,26 @@ public class Library {
 		books.forEach(book -> System.out.println(book));
 	}
 
-	public void getBooksByAuthor(String author) {
+	public List<Book> getBooksByAuthor(String author) {
 		List<Book> filtered = books.stream().filter(b -> b.getAutors().contains(author)).collect(Collectors.toList());
 		filtered.forEach(book -> System.out.println(book));
+		return filtered;
 	}
 
-	public void getBooksOlderThan(int year) {
+	public List<Book> getBooksOlderThan(int year) {
 		List<Book> filtered = books.stream().filter(b -> b.getPublishingYear() > year).collect(Collectors.toList());
 		filtered.forEach(book -> System.out.println(book));
+		return filtered;
 	}
 
-	public void getBooksByPublishingHouse(String pubHouse) {
+	public List<Book> getBooksByPublishingHouse(String pubHouse) {
 		List<Book> filtered = books.stream().filter(b -> b.getPublishingHouse().equals(pubHouse))
 				.collect(Collectors.toList());
 		filtered.forEach(book -> System.out.println(book));
+		return filtered;
 	}
 
 	public void addBook(Book b) {
-		if ((b instanceof Book) == false) {
-			System.out.println("Not a book!");
-		} else {
-
 			books.add(b);
-		}
 	}
-
 }
