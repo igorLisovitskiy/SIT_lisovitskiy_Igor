@@ -15,40 +15,35 @@ import java.util.stream.Stream;
 public class TextEditor {
 	private static Scanner scanner = new Scanner(System.in);
 	private static Charset charset = Charset.forName("UTF-8");
-	
-	
-	
+
 	public static void showStatistics(String fileName) {
 		int numberOfWords = 0;
 		int numberOfSymbols = 0;
-		
-		Pattern vowel = Pattern.compile("[AEIOUYaeiouy]", Pattern.MULTILINE);
-	
-		
-		try (InputStream input = Files.newInputStream(Paths.get(fileName), StandardOpenOption.READ); BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
-		
+
+		Pattern vowelPattern = Pattern.compile("[AEIOUYaeiouy]");
+
+		try (InputStream input = Files.newInputStream(Paths.get(fileName), StandardOpenOption.READ);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
 			String line = "";
-			int numberOfVowels = 0;
-			Matcher matcher = vowel.matcher(line);
-			while(matcher.find()) {
-				numberOfVowels++;
-			}
-			while((line = reader.readLine()) != null) {
+
+			int vowelsFound = 0;
+			int lineNumber = 0;
+			Matcher matcher;
+			while ((line = reader.readLine()) != null) {
+				int vowelsPerLine = 0;
+				lineNumber++;
 				numberOfWords += line.split("\\s+").length;
 				numberOfSymbols += line.length();
-				
+				matcher = vowelPattern.matcher(line);
+				while (matcher.find()) {
+					vowelsPerLine++;
+				}
+				vowelsFound = vowelsFound > vowelsPerLine ? vowelsFound : vowelsPerLine;
 			}
-			//System.out.println("numberOfWords " + numberOfWords);
-			//System.out.println("numberOfSymbols " + numberOfSymbols);
-			System.out.println("numberOfVowels "+ numberOfVowels);
+			System.out.println("Number of symbols: " + numberOfSymbols);
+			System.out.println("Most vowels has line #" + lineNumber + ", vowels found: " + vowelsFound);
+			System.out.println("Number of words: " + numberOfWords);
 
-			do {
-				
-				numberOfSymbols = input.read();
-			
-				
-			}while(numberOfSymbols != -1);
-			
 		} catch (InvalidPathException invalidPath) {
 			System.out.println("Incorrect path: " + invalidPath);
 		} catch (IOException e) {
@@ -81,6 +76,7 @@ public class TextEditor {
 				String str = scanner.nextLine();
 				if (str.toLowerCase().equals("exit")) {
 					showFile(fileName);
+					showStatistics(fileName);
 					break;
 				}
 				writer.write(str);
@@ -97,16 +93,14 @@ public class TextEditor {
 	}
 
 	public static void main(String[] args) throws IOException {
-		//edit("test.txt");
-		showStatistics("test.txt");
-		//
-		// String text = "Bird, forest, snow";
-		// ByteArrayInputStream exit = new ByteArrayInputStream("exit".getBytes());
-		// ByteArrayInputStream in = new ByteArrayInputStream(text.getBytes());
-		// System.out.println(text);
-		// System.setIn(in);
-		// edit("test.txt");
-		// System.setIn(exit);
-		// System.setIn(System.in);
+		String text = "Bird, forest, snow.\\n Where is the coffee?";
+
+		ByteArrayInputStream exit = new ByteArrayInputStream("exit".getBytes());
+		ByteArrayInputStream in = new ByteArrayInputStream(text.getBytes());
+		edit("test.txt");
+		System.setIn(in);
+		System.setIn(System.in);
+		System.setIn(exit);
+		System.setIn(System.in);
 	}
 }
