@@ -1,13 +1,9 @@
 package com.lisovitskiy.hw8;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -27,7 +23,7 @@ public class ConvertRoman {
 
 	public static String decimal2Roman(int x) {
 		String foundRoman = "";
-		if(x == 0){
+		if (x == 0) {
 			return "";
 		}
 		foundRoman = map.entrySet().stream().filter(map -> map.getKey() == x).map(map -> map.getValue())
@@ -52,41 +48,46 @@ public class ConvertRoman {
 			initialNumber = initialNumber / 10;
 			a *= 10;
 		}
-
-		outer: for (int it = list.size() - 1; it >= 0; it--) {
+		System.out.println(list);
+		for (int it = list.size() - 1; it >= 0; it--) {
 			number = list.get(it);
 			for (Integer key : map.keySet()) {
-				String temp = "";
-				if (number / key > 0) {
-					int val = number + key;
-					boolean isRomanBaseNumber = map.keySet().contains(val);
-					if (key < val && isRomanBaseNumber) {
-						temp += map.entrySet().stream().filter(map -> map.getKey() == val).map(map -> map.getValue())
-								.collect(Collectors.joining());
-					}
-					if (temp.length() > 0 && isRomanBaseNumber) {
 
+				String temp = "";
+
+				if (number / key > 0) {
+
+					if (number - key <= 0) {
 						temp += map.entrySet().stream().filter(map -> map.getKey() == key).map(map -> map.getValue())
 								.collect(Collectors.joining());
-						subtactiveNotation += new StringBuilder(temp).reverse().toString();
-						continue outer;
 					}
+					int val = key + number;
+					boolean isRomanBaseNumber = map.keySet().contains(val);
+					if (key < val && isRomanBaseNumber) {
+						temp += map.entrySet().stream().filter(map -> map.getKey() == key).map(map -> map.getValue())
+								.collect(Collectors.joining()) +
 
+								map.entrySet().stream().filter(map -> map.getKey() == val).map(map -> map.getValue())
+										.collect(Collectors.joining());
+					}
+					subtactiveNotation += new StringBuilder(temp).toString();
 				}
 			}
 			for (Integer key : map.keySet()) {
 				int found;
 				if ((found = number / key) > 0) {
-
 					for (int i = 0; i < found; i++) {
 						usualNotation += map.entrySet().stream().filter(map -> map.getKey() == key)
 								.map(map -> map.getValue()).collect(Collectors.joining());
+						System.out.println(usualNotation + " usualNotation");
 						number -= key;
 					}
 				}
 			}
 		}
+
 		romanNumber = subtactiveNotation + usualNotation;
+
 		return romanNumber;
 	}
 
@@ -116,8 +117,17 @@ public class ConvertRoman {
 
 	public static void main(String[] args) {
 
-		 for (int i = 0; i <= 100; i++) {
-			 System.out.printf("%d ====> %s%n", roman2Decimal(decimal2Roman(i)), decimal2Roman(i));
-		}
+		System.out.println(decimal2Roman(12) + " 12");
+		 System.out.println(decimal2Roman(96) + " 96");
+		// System.out.println(decimal2Roman(6) + " 6");
+		// System.out.println(decimal2Roman(19) + " 19");
+		// System.out.println(decimal2Roman(9) + " 9");
+		// System.out.println(decimal2Roman(20) + " 20");
+
+		// for (int i = 1; i <= 20; i++) {
+		// System.out.printf("%d ====> %s%n", roman2Decimal(decimal2Roman(i)),
+		// decimal2Roman(i));
+		// }
+
 	}
 }
