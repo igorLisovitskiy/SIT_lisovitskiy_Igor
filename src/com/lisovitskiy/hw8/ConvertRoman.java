@@ -10,85 +10,109 @@ import java.util.stream.Collectors;
 
 public class ConvertRoman {
 
-	private static NavigableMap<Integer, String> map = new TreeMap<Integer, String>(Collections.reverseOrder());
+	private static NavigableMap<Integer, String> basicRomanNumbers = new TreeMap<Integer, String>(
+			Collections.reverseOrder());
 	static {
-		map.put(1, "I");
-		map.put(5, "V");
-		map.put(10, "X");
-		map.put(50, "L");
-		map.put(100, "C");
-		map.put(500, "D");
-		map.put(1000, "M");
+		basicRomanNumbers.put(1, "I");
+		basicRomanNumbers.put(5, "V");
+		basicRomanNumbers.put(10, "X");
+		basicRomanNumbers.put(50, "L");
+		basicRomanNumbers.put(100, "C");
+		basicRomanNumbers.put(500, "D");
+		basicRomanNumbers.put(1000, "M");
 	}
+
+	private static NavigableMap<Integer, String> decimalToRoman = new TreeMap<Integer, String>(
+			Collections.reverseOrder());
 
 	public static String decimal2Roman(int x) {
 		String foundRoman = "";
 		if (x == 0) {
 			return "";
 		}
-		foundRoman = map.entrySet().stream().filter(map -> map.getKey() == x).map(map -> map.getValue())
+		foundRoman = basicRomanNumbers.entrySet().stream().filter(map -> map.getKey() == x).map(map -> map.getValue())
 				.collect(Collectors.joining());
 		if (foundRoman.length() > 0) {
 			return foundRoman;
 		}
-
-		String romanNumber = "";
+		String compiledRomanNumber = "";
 		String subtactiveNotation = "";
 		String usualNotation = "";
 
-		int initialNumber = x;
-		int number = 0;
-		int a = 1;
+		int searchNumber = x;
+		int initialNumber = 0;
+		int tensMultiplier = 1;
 		ArrayList<Integer> list = new ArrayList<Integer>();
-		while (initialNumber > 0) {
-			number = (initialNumber % 10) * a;
-			if (number > 0) {
-				list.add(number);
+		// fill out the list
+		while (searchNumber > 0) {
+			initialNumber = (searchNumber % 10) * tensMultiplier;
+			if (initialNumber > 0) {
+				list.add(initialNumber);
 			}
-			initialNumber = initialNumber / 10;
-			a *= 10;
+			searchNumber = searchNumber / 10;
+			tensMultiplier *= 10;
 		}
-		System.out.println(list);
+		// parse the collection for numbers
 		for (int it = list.size() - 1; it >= 0; it--) {
-			number = list.get(it);
-			for (Integer key : map.keySet()) {
+			initialNumber = list.get(it);
 
+			for (Integer key : basicRomanNumbers.keySet()) {
 				String temp = "";
+				if (initialNumber / key > 0) {
+					// if true the number contains such Roman number
+					int val = key + initialNumber;
+					boolean isRomanBasicNumber = basicRomanNumbers.keySet().contains(val);
 
-				if (number / key > 0) {
+					if (initialNumber - key <= 0 && initialNumber != 1) { // strange
 
-					if (number - key <= 0) {
-						temp += map.entrySet().stream().filter(map -> map.getKey() == key).map(map -> map.getValue())
-								.collect(Collectors.joining());
-					}
-					int val = key + number;
-					boolean isRomanBaseNumber = map.keySet().contains(val);
-					if (key < val && isRomanBaseNumber) {
-						temp += map.entrySet().stream().filter(map -> map.getKey() == key).map(map -> map.getValue())
-								.collect(Collectors.joining()) +
+						temp += basicRomanNumbers.entrySet().stream().filter(map -> map.getKey() == key)
+								.map(map -> map.getValue()).collect(Collectors.joining());
+						if (list.size() > 0) {
+							list.remove(list.indexOf(key));
+							decimalToRoman.put(key, temp);
+						}
 
-								map.entrySet().stream().filter(map -> map.getKey() == val).map(map -> map.getValue())
-										.collect(Collectors.joining());
+					} else if (key < val && isRomanBasicNumber) {
+						// if true the key goes before the val which is the subtractive part of a Roman numeral
+						temp += basicRomanNumbers.entrySet().stream().filter(map -> map.getKey() == key)
+								.map(map -> map.getValue()).collect(Collectors.joining()) +
+
+								basicRomanNumbers.entrySet().stream().filter(map -> map.getKey() == val)
+										.map(map -> map.getValue()).collect(Collectors.joining());
+						// deleting the number which was found as subtractive notation of a Roman numeral
+						if (list.size() > 0) {
+							list.remove(list.indexOf(initialNumber));
+							decimalToRoman.put(val - key, temp);
+
+						}
 					}
 					subtactiveNotation += new StringBuilder(temp).toString();
 				}
 			}
-			for (Integer key : map.keySet()) {
-				int found;
-				if ((found = number / key) > 0) {
-					for (int i = 0; i < found; i++) {
-						usualNotation += map.entrySet().stream().filter(map -> map.getKey() == key)
+		}
+
+		int i;
+		int found = 0;
+		int foundKey = 0;
+		for (int it = list.size() - 1; it >= 0; it--) {
+			initialNumber = list.get(it);
+			for (Integer key : basicRomanNumbers.keySet()) {
+				if ((initialNumber / key) > 0) {
+					found = (initialNumber / key);
+					for (i = 0; i < found; i++) {
+						usualNotation += basicRomanNumbers.entrySet().stream().filter(map -> map.getKey() == key)
 								.map(map -> map.getValue()).collect(Collectors.joining());
-						System.out.println(usualNotation + " usualNotation");
-						number -= key;
+						initialNumber -= key;
 					}
+					foundKey = key;
 				}
 			}
 		}
-
-		romanNumber = subtactiveNotation + usualNotation;
-
-		return romanNumber;
+		decimalToRoman.put(foundKey * found, usualNotation);
+		compiledRomanNumber = decimalToRoman.entrySet().stream().map((entry) -> entry.getValue())
+				.collect(Collectors.joining());
+		decimalToRoman.clear();
+		return compiledRomanNumber;
 	}
 
 	public static Integer roman2Decimal(String s) {
@@ -97,8 +121,8 @@ public class ConvertRoman {
 		List<Integer> list = new ArrayList<Integer>();
 		for (int i = 0; i < chars.length; i++) {
 			String roman = Character.toString(chars[i]);
-			list.add(map.entrySet().stream().filter(map -> map.getValue().equals(roman)).map(Map.Entry::getKey)
-					.collect(Collectors.toList()).get(0));
+			list.add(basicRomanNumbers.entrySet().stream().filter(map -> map.getValue().equals(roman))
+					.map(Map.Entry::getKey).collect(Collectors.toList()).get(0));
 		}
 
 		for (int i = list.size() - 1; i > 0; i--) {
@@ -116,18 +140,9 @@ public class ConvertRoman {
 	}
 
 	public static void main(String[] args) {
-
-		System.out.println(decimal2Roman(12) + " 12");
-		 System.out.println(decimal2Roman(96) + " 96");
-		// System.out.println(decimal2Roman(6) + " 6");
-		// System.out.println(decimal2Roman(19) + " 19");
-		// System.out.println(decimal2Roman(9) + " 9");
-		// System.out.println(decimal2Roman(20) + " 20");
-
-		// for (int i = 1; i <= 20; i++) {
-		// System.out.printf("%d ====> %s%n", roman2Decimal(decimal2Roman(i)),
-		// decimal2Roman(i));
-		// }
+		for (int i = 1; i <= 1000; i++) {
+			System.out.printf("%d ====> %s%n", roman2Decimal(decimal2Roman(i)), decimal2Roman(i));
+		}
 
 	}
 }
