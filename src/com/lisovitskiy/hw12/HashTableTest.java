@@ -1,5 +1,8 @@
 package com.lisovitskiy.hw12;
 
+import java.lang.reflect.*;
+import java.util.ArrayList;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -25,6 +28,32 @@ public class HashTableTest {
 	}
 	@Test
 	public void doublesCapacity(){
+		Field nBuckets = null;
+		int value = 0;
+	
+		testTable.add(4, "test");
+		testTable.add(5, "test");
+		testTable.add(6, "test");
+		testTable.add(7, "test");
+		testTable.add(8, "test");
+		testTable.add(9, "test");
+		testTable.add(10, "test");
+		testTable.add(11, "test");
+		try {
+			nBuckets = testTable.getClass().getDeclaredField("numberOfBuckets");
+			nBuckets.setAccessible(true);
+			value = (int) nBuckets.get(testTable);
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch(IllegalArgumentException e){
+			e.printStackTrace();
+		}catch(IllegalAccessException e){
+			e.printStackTrace();
+		}
+		assertThat((value),is(equalTo(20)));
+	
 		//how to test this?
 	}
 	@Test
