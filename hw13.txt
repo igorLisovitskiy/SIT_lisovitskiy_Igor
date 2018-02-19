@@ -1,0 +1,88 @@
+
+		SELECT 
+			idauthors, f_name, s_name, id_books, year
+		FROM
+			(SELECT 
+				authors.idauthors,
+					authors.f_name,
+					authors.s_name,
+					books_to_authors.id_books
+			FROM
+				authors
+			INNER JOIN books_to_authors ON authors.idauthors = books_to_authors.id_authors) t
+				INNER JOIN
+			books ON t.id_books = books.idbooks
+table:
+idauthors	f_name		s_name		id_books	year
+1			John		Constantine		6		1984
+2			Ayn			Rand			7		1943
+3			Agatha		Christie		8		1920
+3			Agatha		Christie		9		1922
+3			Agatha		Christie		10		1923
+3			Agatha		Christie		11		1924
+3			Agatha		Christie		12		1925
+3			Agatha		Christie		13		1926
+3			Agatha		Christie		14		1973
+3			Agatha		Christie		17		1981
+4			Barbara		Cartland		1		1925
+4			Barbara		Cartland		2		1926
+4			Barbara		Cartland		3		1930
+4			Barbara		Cartland		4		1933
+4			Barbara		Cartland		5		1934
+5			Danielle	Steel			15		1978
+5			Danielle	Steel			16		1979
+5			Danielle	Steel			17		1981
+8			Terry		Pratchett		18		1983
+8			Terry		Pratchett		19		1991
+
+
+- авторы которые написали две и более книги
+
+		SELECT 
+			f_name, s_name, idauthors
+		FROM
+			lib.authors AS a
+		WHERE
+			a.idauthors IN (SELECT 
+					books_to_authors.id_authors
+				FROM
+					books_to_authors
+				GROUP BY  books_to_authors.id_authors HAVING
+					COUNT(books_to_authors.id_authors) > 1)
+
+- книги, написанные двумя и более авторами
+
+		SELECT 
+			f_name, s_name, books.title, books.idbooks
+			FROM books
+			LEFT JOIN
+			(SELECT authors.f_name, authors.s_name, books_to_authors.id_books FROM books_to_authors, authors WHERE authors.idauthors = books_to_authors.id_authors) AS t
+			ON  books.idbooks =  t.id_books
+			WHERE
+			   books.idbooks IN (SELECT 
+					books_to_authors.id_books
+				FROM
+					books_to_authors
+				GROUP BY  books_to_authors.id_books HAVING
+					COUNT(books_to_authors.id_books) > 1)
+
+- авторы рожденные в промежутке между 50 и 70 годами
+
+		SELECT 
+			authors.f_name, authors.s_name, authors.year_of_birth
+		FROM
+		  authors 
+		  WHERE 
+		  authors.year_of_birth BETWEEN 1900 AND 1950
+  
+- количество книг, написанных авторами, рожденных в промежутке между 50 и 70 годами
+
+		SELECT 
+			f_name, s_name, COUNT(title) AS number_of_books, year_of_birth
+			FROM books
+			LEFT JOIN
+			(SELECT * FROM books_to_authors, authors WHERE authors.idauthors = books_to_authors.id_authors) AS t
+			ON  books.idbooks =  t.id_books
+			WHERE
+				t.year_of_birth BETWEEN 1900 AND 1950
+				GROUP BY year_of_birth
